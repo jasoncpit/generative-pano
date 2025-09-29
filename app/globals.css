@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@reference "tailwindcss";
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+    
+    /* Keep existing custom variables */
+    --bg: #f3f4f6;
+    --panel: #ffffff;
+    --text: #111827;
+    --custom-muted: #6b7280;
+    --custom-border: #e5e7eb;
+    --custom-accent: #111827;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply text-foreground;
+    background: var(--bg);
+  }
+}
+
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+	margin: 0;
+	font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+	background: var(--bg);
+	color: var(--text);
+}
+
+.page-container { max-width: 960px; margin: 0 auto; padding: 24px; }
+.panel { background: var(--panel); border: 1px solid var(--custom-border); border-radius: 12px; padding: 16px; }
+.header { font-size: 24px; font-weight: 600; margin: 0 0 8px; }
+.subtle { color: var(--custom-muted); font-size: 13px; }
+.section-title { font-size: 14px; font-weight: 600; margin: 16px 0 8px; }
+
+.button { background: var(--custom-accent); color: #ffffff; border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer; }
+.button:disabled { opacity: .6; cursor: default; }
+.input { width: 100%; padding: 10px 12px; border: 1px solid var(--custom-border); border-radius: 10px; font-size: 14px; }
+
+.sticky-bar {
+	position: sticky;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin-top: 16px;
+	background: var(--panel);
+	border: 1px solid var(--custom-border);
+	border-radius: 12px;
+	padding: 12px;
+	box-shadow: 0 -2px 8px rgba(255, 255, 255, 0.05);
+}
+
+.viewer { width: 100%; height: 500px; border-radius: 12px; overflow: hidden; border: 1px solid var(--custom-border); }
+.image { width: 100%; border-radius: 12px; border: 1px solid var(--custom-border); }
+
+

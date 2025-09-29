@@ -1,0 +1,10 @@
+// Utility for computing SHA-256 hashes in the browser using the
+// WebCrypto API. Returns a hex string.
+
+export async function sha256(input: string): Promise<string> {
+  const buf = new TextEncoder().encode(input);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}

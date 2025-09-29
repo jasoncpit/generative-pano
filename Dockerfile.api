@@ -1,0 +1,33 @@
+# FastAPI service (Python 3.11)
+FROM python:3.11-slim-bullseye AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# System deps (optional but useful for ssl/certs and build)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN curl -LsSf https://github.com/astral-sh/uv/releases/download/0.1.18/uv-aarch64-unknown-linux-gnu.tar.gz | tar xz && \
+    mv uv-aarch64-unknown-linux-gnu/uv /usr/local/bin/uv && \
+    rm -rf uv-aarch64-unknown-linux-gnu
+
+# Python deps
+COPY pyproject.toml uv.lock ./
+RUN uv pip sync --frozen --no-cache --no-dev
+
+# App code
+COPY api/ ./api/
+
+EXPOSE 8000
+
+# Default environment; override in compose as needed
+ENV CORS_ORIGIN=*
+
+CMD ["uv", "run", "uvicorn", "api.generate:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--proxy-headers", "--forwarded-allow-ips", "*"]
+
+
