@@ -65,6 +65,11 @@ def normalize(params: dict) -> dict:
 async def healthz():
     return {"status": "ok"}
 
+# Back-compat endpoint for common health check typo
+@app.get("/heathz")
+async def heathz():
+    return {"status": "ok", "hint": "use /healthz"}
+
 @app.post("/")
 async def generate(req: Request) -> Response:
     if isinstance(req, dict):
@@ -221,3 +226,8 @@ if __name__ == "__main__":
     print(example_request)
     result = asyncio.run(generate(example_request))
     print(result)
+
+# Secondary route for Render or other platforms that mount at the service root
+@app.post("/api/generate")
+async def generate_alias(req: Request) -> Response:
+    return await generate(req)
