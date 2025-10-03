@@ -29,6 +29,7 @@ export interface StaggeredMenuProps {
   onMenuOpen?: () => void;
   onMenuClose?: () => void;
   isFixed?: boolean;
+  disclaimer?: string;
 }
 
 export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
@@ -43,6 +44,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   changeMenuColorOnOpen = true,
   accentColor = '#5227FF',
   isFixed = false,
+  disclaimer,
   onMenuOpen,
   onMenuClose
 }: StaggeredMenuProps) => {
@@ -418,6 +420,9 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                 ))}
               </ul>
             </div>
+          )}
+          {disclaimer && (
+            <p className="sm-disclaimer" aria-live="polite">{disclaimer}</p>
           )}
         </div>
       </aside>

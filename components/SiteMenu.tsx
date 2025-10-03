@@ -29,6 +29,7 @@ export default function SiteMenu() {
     <StaggeredMenu
       items={menuItems}
       socialItems={socialItems}
+      disclaimer="This demo generates AI-altered visuals. Use responsibly. For educational purposes only. Source images are licensed under Creative Commons via Wikimedia Commons"
       displaySocials={true}
       displayItemNumbering={true}
       menuButtonColor="#fff"

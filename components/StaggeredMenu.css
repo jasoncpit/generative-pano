@@ -186,6 +186,13 @@
   gap: 1.25rem;
 }
 
+.sm-disclaimer {
+  margin-top: 1rem;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #6b7280; /* neutral grey */
+}
+
 .sm-socials {
   margin-top: auto;
   padding-top: 2rem;
