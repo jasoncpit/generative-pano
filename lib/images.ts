@@ -36,7 +36,6 @@ const imageFiles = [
   "Armenia_christsmas.jpg",
   "Austria - Schweizerhaus.jpg",
   "Beach House.jpg",
-  "Bochum_Langendreer_Oesterheidestr.jpg",
   "Bridge.jpg",
   "Church.jpg",
   "EUparlament.jpg",
@@ -56,7 +55,6 @@ const imageFiles = [
   "St Andrew's Episcopal Church.jpg",
   "Taiwan - 711.jpg",
   "Canada.jpg",
-  "Cataratas_do_Iguaçu.jpg",
   "Cool installation.jpg",
   "Somewhere in kazakhstan.jpg",
 ];

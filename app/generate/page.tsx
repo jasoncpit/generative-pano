@@ -5,7 +5,7 @@ import SourcePreview from '@/components/SourcePreview';
 import PromptBar from '@/components/PromptBar';
 import { checkIsPano, blobToDataUrl } from '@/lib/images';
 import VirtualRightArrow from '@/components/VirtualRightArrow';
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000/api/generate';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://generative-pano.onrender.com/api/generate';
 
 export default function GeneratePage() {
   // Replicate provider only; no BYOK key needed

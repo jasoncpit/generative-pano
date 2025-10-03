@@ -81,7 +81,7 @@ export default function DomeGallery({
   onSelect,
   fit = 1,
   fitBasis = "auto",
-  minRadius = 2000,
+  minRadius = 3000,
   maxRadius = Infinity,
   padFactor = 0.25,
   overlayBlurColor = "#060010",
