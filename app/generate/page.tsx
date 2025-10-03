@@ -4,15 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import SourcePreview from '@/components/SourcePreview';
 import PromptBar from '@/components/PromptBar';
 import { checkIsPano, blobToDataUrl } from '@/lib/images';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api/generate';
-const DEFAULT_SRC = '/images/im3.jpg';
+import VirtualRightArrow from '@/components/VirtualRightArrow';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000/api/generate';
 
 export default function GeneratePage() {
   // Replicate provider only; no BYOK key needed
   const [params, setParams] = useState({ text: '' });
   const [busy, setBusy] = useState(false);
-  const [sourcePreviewUrl, setSourcePreviewUrl] = useState(DEFAULT_SRC);
+  const [sourcePreviewUrl, setSourcePreviewUrl] = useState<string | null>(null);
   const [sourceIsPano, setSourceIsPano] = useState(false);
   const objUrlRef = useRef<string | null>(null);
 
@@ -26,7 +25,7 @@ export default function GeneratePage() {
         return;
       }
     } catch {}
-    setSourcePreviewUrl(DEFAULT_SRC);
+    setSourcePreviewUrl(null);
   }, []);
 
   useEffect(() => {
@@ -48,7 +47,7 @@ export default function GeneratePage() {
     try {
       const effectiveText = (textOverride ?? params.text) || '';
       let body: any = { provider: 'replicate', params: { text: effectiveText } };
-      const src = sourcePreviewUrl || DEFAULT_SRC;
+      const src = sourcePreviewUrl;
       
       // Convert image to base64
       const response = await fetch(src);
@@ -89,6 +88,7 @@ export default function GeneratePage() {
     <main>
       <SourcePreview url={sourcePreviewUrl} isPano={sourceIsPano} />
       <PromptBar busy={busy} onSubmit={(t) => { setParams({ text: t }); onGenerate(t); }} />
+      <VirtualRightArrow />
     </main>
   );
 }
