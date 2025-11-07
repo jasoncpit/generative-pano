@@ -1,13 +1,13 @@
 # Next.js app (Node 20)
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY apps/web/package.json apps/web/package-lock.json ./
 RUN npm ci
 
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY apps/web ./
 # Build the Next.js app
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
@@ -23,9 +23,6 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3000
-
-# Default to use API at http://api:8000 inside compose
-ENV NEXT_PUBLIC_API_BASE=http://api:8000
 
 CMD ["npm", "run", "start"]
 

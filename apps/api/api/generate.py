@@ -24,6 +24,7 @@ import base64
 import asyncio
 import io
 from dotenv import load_dotenv
+from pydantic import BaseModel, Field
 
 load_dotenv()
 
@@ -45,6 +46,15 @@ app.add_middleware(
 )
 
 # Note: No allowlist is required for Replicate since we do not proxy source downloads
+
+class GenerateParams(BaseModel):
+    text: str = Field(default="", max_length=500)
+
+class GenerateRequest(BaseModel):
+    provider: str = Field(default="replicate", pattern="^replicate$")
+    params: GenerateParams
+    source_image_b64: str | None = None
+    # source_url intentionally unsupported to avoid SSRF
 
 def normalize(params: dict) -> dict:
     """Clamp and sanitize generation parameters."""
@@ -70,16 +80,21 @@ async def healthz():
 async def heathz():
     return {"status": "ok", "hint": "use /healthz"}
 
-@app.post("/")
+@app.post("/api/generate")
 async def generate(req: Request) -> Response:
     if isinstance(req, dict):
         body = req
     else:
         body = await req.json()
-    provider = (body.get("provider") or "replicate").lower()
+    # Validate and coerce input
+    try:
+        validated = GenerateRequest(**body)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"invalid request: {e}")
+    provider = (validated.provider or "replicate").lower()
     # Only base64 input is supported; URLs are intentionally not handled.
 
-    params = normalize(body.get("params", {}))
+    params = normalize(validated.params.model_dump())
 
     # Replicate provider: run external pipeline and return the resulting image
     if provider == "replicate":
@@ -102,7 +117,7 @@ async def generate(req: Request) -> Response:
         )
 
         async def prepare_image_file() -> io.BytesIO:
-            b64 = body.get("source_image_b64")
+            b64 = validated.source_image_b64
             if isinstance(b64, str) and b64:
                 b64_str = b64
                 if b64_str.startswith("data:"):
@@ -111,6 +126,9 @@ async def generate(req: Request) -> Response:
                         b64_str = encoded
                     except Exception:
                         raise HTTPException(status_code=400, detail="invalid data URL in source_image_b64")
+                # Reject payloads larger than ~14 MiB base64 (~10 MiB raw)
+                if len(b64_str) > 14 * 1024 * 1024:
+                    raise HTTPException(status_code=413, detail="source_image_b64 too large")
                 try:
                     data = base64.b64decode(b64_str)
                 except Exception:
@@ -227,7 +245,4 @@ if __name__ == "__main__":
     result = asyncio.run(generate(example_request))
     print(result)
 
-# Secondary route for Render or other platforms that mount at the service root
-@app.post("/api/generate")
-async def generate_alias(req: Request) -> Response:
-    return await generate(req)
+# Secondary route removed in favor of explicit /api/generate endpoint
