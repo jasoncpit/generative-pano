@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react"
 import { useClickOutside } from "./hooks/use-click-outside"
 import SiriOrb from "@/components/smoothui/ui/SiriOrb"
 import TypewriterText from "@/components/smoothui/ui/TypewriterText"
+import { AVAILABLE_BASE_MODELS, DEFAULT_BASE_MODEL } from "@/lib/config"
 
 const SPEED = 1
 
@@ -26,7 +27,7 @@ export function MorphSurface({
   loading = false,
   disabled = false,
 }: {
-  onSubmit?: (message: string) => void | Promise<void>
+  onSubmit?: (message: string, options?: { model?: string }) => void | Promise<void>
   placeholder?: string
   loading?: boolean
   disabled?: boolean
@@ -169,12 +170,12 @@ function Dock({ disabled, loading }: { disabled?: boolean; loading?: boolean }) 
   )
 }
 
-const FEEDBACK_WIDTH = 360
+const FEEDBACK_WIDTH = 400
 const FEEDBACK_HEIGHT = 200
 
 const Feedback = React.forwardRef<HTMLTextAreaElement, {
   onSuccess: () => void
-  onSubmitExternal?: (message: string) => void | Promise<void>
+  onSubmitExternal?: (message: string, options?: { model?: string }) => void | Promise<void>
   placeholder?: string
   loading?: boolean
   disabled?: boolean
@@ -191,12 +192,13 @@ const Feedback = React.forwardRef<HTMLTextAreaElement, {
   const { closeFeedback, showFeedback } = useFooter()
   const submitRef = React.useRef<HTMLButtonElement>(null)
   const [message, setMessage] = React.useState("")
+  const [selectedModel, setSelectedModel] = React.useState<string>(DEFAULT_BASE_MODEL.model)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     try {
       if (onSubmitExternal) {
-        await onSubmitExternal(message)
+        await onSubmitExternal(message, { model: selectedModel })
       }
       onSuccess()
       setMessage("")
@@ -240,9 +242,16 @@ const Feedback = React.forwardRef<HTMLTextAreaElement, {
             className="flex h-full flex-col p-1"
           >
             <div className="flex justify-between py-1">
-              <p className="text-foreground z-2 ml-[38px] flex items-center gap-[6px] select-none">
-                {loading ? <TypewriterText speed={40}>Re-imagining...</TypewriterText> : "Re-imagine"}
-              </p>
+              <div className="z-2 ml-[38px] flex items-center gap-2 select-none">
+                <p className="text-foreground flex items-center gap-[6px]">
+                  {loading ? <TypewriterText speed={40}>Re-imagining...</TypewriterText> : "Re-imagine"}
+                </p>
+                <ModelSelect
+                  value={selectedModel}
+                  onChange={setSelectedModel}
+                  disabled={disabled}
+                />
+              </div>
               <button
                 type="submit"
                 ref={submitRef}
@@ -287,6 +296,98 @@ const Feedback = React.forwardRef<HTMLTextAreaElement, {
     </form>
   )
 })
+
+function ModelSelect({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string
+  onChange: (v: string) => void
+  disabled?: boolean
+}) {
+  const [open, setOpen] = React.useState(false)
+  const ref = React.useRef<HTMLDivElement | null>(null)
+  useClickOutside(ref, () => setOpen(false))
+  const selected = React.useMemo(
+    () => AVAILABLE_BASE_MODELS.find((m) => m.model === value) ?? DEFAULT_BASE_MODEL,
+    [value]
+  )
+
+  function handleSelect(v: string) {
+    onChange(v)
+    setOpen(false)
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        disabled={!!disabled}
+        onClick={() => setOpen((o) => !o)}
+        className={cx(
+          "group flex items-center gap-1 h-7 rounded-full border border-black/10",
+          "bg-white/80 hover:bg-white text-foreground shadow-sm",
+          "px-2 pr-6 text-[11.5px] font-medium transition-colors"
+        )}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        <span className="truncate max-w-[220px]">{selected.label}</span>
+        <span className="pointer-events-none absolute right-1 top-1.5 text-xs text-black/60 group-hover:text-black/80">
+          ▾
+        </span>
+      </button>
+      <AnimatePresence>
+        {open && !disabled && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.12 }}
+            className="absolute left-0 top-[110%] z-50 min-w-[260px] max-w-[320px]"
+          >
+            <div className="rounded-md border border-black/10 bg-white/95 backdrop-blur shadow-lg">
+              <ul role="listbox" className="max-h-64 overflow-auto py-1">
+                {AVAILABLE_BASE_MODELS.map((m) => {
+                  const isSelected = m.model === value
+                  return (
+                    <li key={m.id}>
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => handleSelect(m.model)}
+                        className={cx(
+                          "w-full text-left px-2 py-1.5 text-[12.5px] hover:bg-black/5",
+                          isSelected ? "font-semibold" : "font-normal"
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={cx(
+                              "inline-flex h-4 w-4 items-center justify-center rounded-[4px] border",
+                              isSelected
+                                ? "bg-black text-white border-black"
+                                : "bg-white text-transparent border-black/20"
+                            )}
+                          >
+                            ✓
+                          </span>
+                          <span className="truncate">{m.label}</span>
+                        </div>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
 
 const LOGO_SPRING = {
   type: "spring",

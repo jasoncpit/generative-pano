@@ -5,7 +5,17 @@ import SourcePreview from '@/components/SourcePreview';
 import PromptBar from '@/components/PromptBar';
 import { checkIsPano, blobToDataUrl } from '@/lib/images';
 import VirtualRightArrow from '@/components/VirtualRightArrow';
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? '/api/generate';
+const RAW = process.env.NEXT_PUBLIC_API_BASE;
+const API_BASE = (() => {
+  if (!RAW) return '/api/generate';
+  if (RAW.endsWith('/api/generate') || RAW.endsWith('/api/generate/')) return RAW;
+  try {
+    const u = new URL(RAW);
+    return `${u.origin}/api/generate`;
+  } catch {
+    return RAW;
+  }
+})();
 
 export default function GeneratePage() {
   // Replicate provider only; no BYOK key needed
@@ -42,7 +52,7 @@ export default function GeneratePage() {
     };
   }, [sourcePreviewUrl]);
 
-  const onGenerate = async (textOverride?: string) => {
+  const onGenerate = async (textOverride?: string, opts?: { model?: string }) => {
     setBusy(true);
     try {
       const effectiveText = (textOverride ?? params.text) || '';
@@ -55,10 +65,14 @@ export default function GeneratePage() {
       const base64 = await blobToDataUrl(blob);
 
       body.source_image_b64 = base64;
+      if (opts?.model) {
+        body.params.replicate_model = opts.model;
+      }
 
       const endpoint = API_BASE.endsWith('/api/generate') || API_BASE.endsWith('/api/generate/')
         ? API_BASE
         : `${API_BASE}`;
+      console.log('endpoint', endpoint);
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -87,7 +101,7 @@ export default function GeneratePage() {
   return (
     <main>
       <SourcePreview url={sourcePreviewUrl} isPano={sourceIsPano} />
-      <PromptBar busy={busy} onSubmit={(t) => { setParams({ text: t }); onGenerate(t); }} />
+      <PromptBar busy={busy} onSubmit={(t, opt) => { setParams({ text: t }); onGenerate(t, opt); }} />
       <VirtualRightArrow />
     </main>
   );

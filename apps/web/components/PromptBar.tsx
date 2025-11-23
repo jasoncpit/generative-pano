@@ -3,15 +3,15 @@
 import { useCallback, useState } from 'react';
 import { MorphSurface } from '@/components/smoothui/ui/AiInput';
 
-export default function PromptBar({ busy, onSubmit }: { busy: boolean; onSubmit: (t: string) => void | Promise<void> }) {
+export default function PromptBar({ busy, onSubmit }: { busy: boolean; onSubmit: (t: string, options?: { model?: string }) => void | Promise<void> }) {
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = useCallback(
-    async (text: string) => {
+    async (text: string, options?: { model?: string }) => {
       if (busy || submitting) return;
       setSubmitting(true);
       try {
-        await Promise.resolve(onSubmit(text));
+        await Promise.resolve(onSubmit(text, options));
       } finally {
         setSubmitting(false);
       }

@@ -30,10 +30,10 @@ Frontend (Next.js):
 Backend (FastAPI with uv):
 - `cd apps/api`
 - `uv sync`
-- `uv run uvicorn apps.api.generate:app --host 0.0.0.0 --port 8000`
+- `uv run uvicorn apps.api.main:app --host 0.0.0.0 --port 8000`
 
 ## Notes
-- The API exposes `POST /api/generate` only.
+- The API exposes `POST /api/v1/generate`; `/healthz` for health checks.
 - Python deps are managed via `pyproject.toml` and `uv.lock` with uv.
 - In Docker Compose, the frontend embeds `NEXT_PUBLIC_API_BASE=http://localhost:8000/api/generate` so the browser can reach the API.
 

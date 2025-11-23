@@ -1,0 +1,38 @@
+name: api-ci
+
+on:
+  push:
+    paths:
+      - 'apps/api/**'
+      - '.github/workflows/api.yml'
+  pull_request:
+    paths:
+      - 'apps/api/**'
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh && echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Sync deps with uv
+        working-directory: apps/api
+        run: uv sync --frozen --no-dev
+      - name: Install linters
+        run: pipx install ruff && pipx install black
+      - name: Ruff
+        working-directory: apps/api
+        run: ruff check .
+      - name: Black (check)
+        working-directory: apps/api
+        run: black --check .
+      - name: Package import smoke
+        working-directory: apps/api
+        run: python -c "import api"
+
+
